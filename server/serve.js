@@ -18,6 +18,7 @@ const COLORS = ["", "", "", "", "", ""]
 wss.on('connection', function connection(ws) {
     ws.on('message', function incoming(data) {
         data = JSON.parse(data);
+        console.log(data.type)
         if (data.type == CONNECT) {
             if (playing == true) {
                 ws.terminate()
@@ -26,6 +27,7 @@ wss.on('connection', function connection(ws) {
             if (!data.obj.name || data.obj.name.trim().length === 0)
               data.obj.name = "(blank)"
             ws.name = data.obj.name;
+            ws.drawid = data.obj.drawid
             ws.ready = false;
             ws.score = 0;
             console.log("Connection:  " + ws._socket.remoteAddress + " " + ws.name);
@@ -86,7 +88,7 @@ function allReady() {
 }
 
 function getPlayerObjs() {
-    ps = []
+    let ps = []
     wss.clients.forEach(function each(client){
         if (client.p) {
             ps.push(client.p);
@@ -104,7 +106,6 @@ function tick() {
         sendToAll(UPDATE, {
             players: players
         });
-
         if (wss.clients.size <= 0) {
             reset()
         }
