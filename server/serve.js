@@ -13,7 +13,8 @@ console.log("Running server on port 8191.")
 
 playing = false;
 
-const COLORS = ["", "", "", "", "", ""]
+            //    Red,      Yellow,     Green,     Blue,      Pink,     White
+const COLORS = ["#F83800", "#F8B800", "#58D854", "#0078F8", "#D800CC", "#BCBCBC"]
 
 wss.on('connection', function connection(ws) {
     ws.on('message', function incoming(data) {
@@ -130,6 +131,25 @@ function write() {
       }
       //console.log("write!");
   });
+}
+
+function circleRectCollision(cX, cY, cRad, rX, rY, rWidth, rHeight) {
+    var distX = Math.abs(cX - rX-rWidth/2);
+    var distY = Math.abs(cY - rY-rHeight/2);
+
+    // Check if definitely not colliding
+    if(distX > rWidth/2 + cRad) {return false;}
+    if(distY > rHeight/2 + cRad) {return false;}
+
+    // Check if definitely colliding
+    if(distX <= rWidth/2) {return true;}
+    if(distY <= rHeight/2) {return true;}
+
+    // check corner collision
+    var dx = distX - rWidth/2;
+    var dy = distY - rHeight/2;
+    // Use pythagorean theorem to
+    return ((dx*dx) + (dy*dy) <= (cRad*cRad));
 }
 
 setInterval(write, 5000);
