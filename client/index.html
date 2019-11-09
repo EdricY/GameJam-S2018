@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
+	<meta charset="UTF-8">
+	<title>GameJam S2018</title>
+  <style>
+
+  .serverDiv {
+    margin: 40px 0px;
+  }
+  .refreshdiv{
+    margin-top: 20px;
+  }
+
+  .nameDiv {
+	  font-size: 20pt;
+    background-color: #F878F8;
+  	border-style: solid;
+	border-color: #940084;
+  	border-width: 3px 3px 3px 20px;
+  	margin-top: 20px;
+  	padding: 20px;
+  }
+
+  .servers {
+	background-color: #F8D878;
+	border-style: solid;
+	border-width: 3px 3px 3px 20px;
+	border-color: #AC7C00;
+	margin-top: 20px;
+	padding: 5px 20px 5px 20px;
+  }
+
+  .info {
+	background-color: #58F898;
+	border-style: solid;
+	border-width: 3px 3px 3px 20px;
+	border-color: #00A844;
+	margin-top: 20px;
+	padding: 5px 20px 5px 20px;
+  }
+
+  * {
+	  font-family: 'Press Start 2P', cursive;
+  }
+
+  body {
+	  background: url("rsrc/sitebg.png");
+	  background-size: cover;
+	  background-color: #6844FC;
+  }
+
+  .titleDiv {
+	  margin-top: 36px;
+	  text-align: center;
+	  border-bottom: 4px solid;
+	  border-color: #FFF;
+	  font-size: 48pt;
+	  color: #FFF;
+  }
+
+  </style>
+</head>
+
+<body id="body">
+	<div id="connectdiv">
+		<div style="border-bottom: 4px solid black; ">
+			<div class="titleDiv">
+				<img id="backpic" src="rsrc/Title.png" alt="img" float="center">
+			</div>
+		</div>
+
+		<div class="nameDiv">
+			<span>Name:</span>
+			<input id="myName" name="myName" type="text" maxlength="25" onkeydown="changeName()" style="font-size:20pt; padding: 5px 10px;">
+		</div>
+		<div class="servers">
+		    <div class="refreshdiv">
+		      <input type="button" value="Refresh!" onclick="pingAll()">
+              <span style="float:right;">High Score:<span id="highscore"></span></span>
+		    </div>
+		    <div class="serverDiv">
+		      <div>Taylor: <span id="taylorstatus"></span></div>
+		  		  <input id="connectTaylor" disabled type="button" value="Connect!" onclick="connect('taylor')">
+		  		<div id="connectmsg"></div>
+		    </div>
+		    <div class="serverDiv">
+		      <div>Muller: <span id="mullerstatus"></span></div>
+		        <input id="connectMuller" disabled type="button" value="Connect!" onclick="connect('muller')">
+		      <div id="connectmsg"></div>
+		    </div>
+		    <div class="serverDiv">
+		      <div>Saint: <span id="saintstatus"></span></div>
+		        <input id="connectSaint" disabled type="button" value="Connect!" onclick="connect('saint')">
+		      <div id="connectmsg"></div>
+		    </div>
+		    <div class="serverDiv">
+		      <span>Other Server Address:</span>
+		      <input id="ipaddress" name="ipaddress" type="text" placeholder="10.121.217.11">
+		      <div>
+		        <input type="button" value="Connect!" onclick="connectCustom()">
+		      </div>
+		    </div>
+		</div>
+		<div class = "info">
+			<span style="font-size:20pt; color:white">The slimes are taking over!<br><br></span>
+			<span>&nbsp &nbspYou can only kill slimes of your color so you need to work together with your teammates to
+				<span style="font-size:16pt; text-decoration:underline; color:white">protect each other</span>. Your health is all cumulative so if any of you die... all of you die... Survive as long as you can!<br><br></span>
+			<div style="font-size:20pt; color:white">Controls:</div>
+			<div style="margin:10px">Arrow keys or WASD: Move</div>
+			<div style="margin:10px">Space: Shoot</div>
+			<div style="margin:10px">Tag the pick ups to set off an EXPLOSION!</div>
+			<div style="margin:10px">Try for the high score!</div>
+		</div>
+	</div>
+<!-- These images are listed here to attempt to load them into cache before entering the game.
+    The most important thing to be here is probably tilemap-->
+    <img id="tilemap" src="rsrc/TileMap.png" alt="map" hidden>
+    <img id="cloudimg" src="rsrc/cloud.png" alt="img" hidden>
+    <img id="blockimg" src="rsrc/block.png" alt="img" hidden>
+
+    <img id="bluewalk0" src="rsrc/player_blue_idle.png" alt="img" hidden>
+    <img id="bluewalk1" src="rsrc/player_blue_walk_1.png" alt="img" hidden>
+    <img id="bluewalk2" src="rsrc/player_blue_walk_2.png" alt="img" hidden>
+    <img id="bluewalk3" src="rsrc/player_blue_idle_l.png" alt="img" hidden>
+    <img id="bluewalk4" src="rsrc/player_blue_walk_1_l.png" alt="img" hidden>
+    <img id="bluewalk5" src="rsrc/player_blue_walk_2_l.png" alt="img" hidden>
+
+    <img id="greenwalk0" src="rsrc/player_green_idle.png" alt="img" hidden>
+    <img id="greenwalk1" src="rsrc/player_green_walk_1.png" alt="img" hidden>
+    <img id="greenwalk2" src="rsrc/player_green_walk_2.png" alt="img" hidden>
+    <img id="greenwalk3" src="rsrc/player_green_idle_l.png" alt="img" hidden>
+    <img id="greenwalk4" src="rsrc/player_green_walk_1_l.png" alt="img" hidden>
+    <img id="greenwalk5" src="rsrc/player_green_walk_2_l.png" alt="img" hidden>
+
+    <img id="pinkwalk0" src="rsrc/player_pink_idle.png" alt="img" hidden>
+    <img id="pinkwalk1" src="rsrc/player_pink_walk_1.png" alt="img" hidden>
+    <img id="pinkwalk2" src="rsrc/player_pink_walk_2.png" alt="img" hidden>
+    <img id="pinkwalk3" src="rsrc/player_pink_idle_l.png" alt="img" hidden>
+    <img id="pinkwalk4" src="rsrc/player_pink_walk_1_l.png" alt="img" hidden>
+    <img id="pinkwalk5" src="rsrc/player_pink_walk_2_l.png" alt="img" hidden>
+
+    <img id="redwalk0" src="rsrc/player_red_idle.png" alt="img" hidden>
+    <img id="redwalk1" src="rsrc/player_red_walk_1.png" alt="img" hidden>
+    <img id="redwalk2" src="rsrc/player_red_walk_2.png" alt="img" hidden>
+    <img id="redwalk3" src="rsrc/player_red_idle_l.png" alt="img" hidden>
+    <img id="redwalk4" src="rsrc/player_red_walk_1_l.png" alt="img" hidden>
+    <img id="redwalk5" src="rsrc/player_red_walk_2_l.png" alt="img" hidden>
+
+    <img id="whitewalk0" src="rsrc/player_white_idle.png" alt="img" hidden>
+    <img id="whitewalk1" src="rsrc/player_white_walk_1.png" alt="img" hidden>
+    <img id="whitewalk2" src="rsrc/player_white_walk_2.png" alt="img" hidden>
+    <img id="whitewalk3" src="rsrc/player_white_idle_l.png" alt="img" hidden>
+    <img id="whitewalk4" src="rsrc/player_white_walk_1_l.png" alt="img" hidden>
+    <img id="whitewalk5" src="rsrc/player_white_walk_2_l.png" alt="img" hidden>
+
+    <img id="yellowwalk0" src="rsrc/player_yellow_idle.png" alt="img" hidden>
+    <img id="yellowwalk1" src="rsrc/player_yellow_walk_1.png" alt="img" hidden>
+    <img id="yellowwalk2" src="rsrc/player_yellow_walk_2.png" alt="img" hidden>
+    <img id="yellowwalk3" src="rsrc/player_yellow_idle_l.png" alt="img" hidden>
+    <img id="yellowwalk4" src="rsrc/player_yellow_walk_1_l.png" alt="img" hidden>
+    <img id="yellowwalk5" src="rsrc/player_yellow_walk_2_l.png" alt="img" hidden>
+
+    <img id="redslime1" src="rsrc/Slime_Red_1.png" alt="img" hidden>
+    <img id="redslime2" src="rsrc/Slime_Red_2.png" alt="img" hidden>
+    <img id="redslime3" src="rsrc/Slime_Red_3.png" alt="img" hidden>
+    <img id="redslime4" src="rsrc/Slime_Red_4.png" alt="img" hidden>
+
+    <img id="blueslime1" src="rsrc/Slime_Blue_1.png" alt="img" hidden>
+    <img id="blueslime2" src="rsrc/Slime_Blue_2.png" alt="img" hidden>
+    <img id="blueslime3" src="rsrc/Slime_Blue_3.png" alt="img" hidden>
+    <img id="blueslime4" src="rsrc/Slime_Blue_4.png" alt="img" hidden>
+
+    <img id="greenslime1" src="rsrc/Slime_Green_1.png" alt="img" hidden>
+    <img id="greenslime2" src="rsrc/Slime_Green_2.png" alt="img" hidden>
+    <img id="greenslime3" src="rsrc/Slime_Green_3.png" alt="img" hidden>
+    <img id="greenslime4" src="rsrc/Slime_Green_4.png" alt="img" hidden>
+
+    <img id="pinkslime1" src="rsrc/Slime_Pink_1.png" alt="img" hidden>
+    <img id="pinkslime2" src="rsrc/Slime_Pink_2.png" alt="img" hidden>
+    <img id="pinkslime3" src="rsrc/Slime_Pink_3.png" alt="img" hidden>
+    <img id="pinkslime4" src="rsrc/Slime_Pink_4.png" alt="img" hidden>
+
+    <img id="whiteslime1" src="rsrc/Slime_White_1.png" alt="img" hidden>
+    <img id="whiteslime2" src="rsrc/Slime_White_2.png" alt="img" hidden>
+    <img id="whiteslime3" src="rsrc/Slime_White_3.png" alt="img" hidden>
+    <img id="whiteslime4" src="rsrc/Slime_White_4.png" alt="img" hidden>
+
+    <img id="yellowslime1" src="rsrc/Slime_Yellow_1.png" alt="img" hidden>
+    <img id="yellowslime2" src="rsrc/Slime_Yellow_2.png" alt="img" hidden>
+    <img id="yellowslime3" src="rsrc/Slime_Yellow_3.png" alt="img" hidden>
+    <img id="yellowslime4" src="rsrc/Slime_Yellow_4.png" alt="img" hidden>
+
+    <img id="redslime1l" src="rsrc/Slime_Red_1_l.png" alt="img" hidden>
+    <img id="redslime2l" src="rsrc/Slime_Red_2_l.png" alt="img" hidden>
+    <img id="redslime3l" src="rsrc/Slime_Red_3_l.png" alt="img" hidden>
+    <img id="redslime4l" src="rsrc/Slime_Red_4_l.png" alt="img" hidden>
+
+    <img id="blueslime1l" src="rsrc/Slime_Blue_1_l.png" alt="img" hidden>
+    <img id="blueslime2l" src="rsrc/Slime_Blue_2_l.png" alt="img" hidden>
+    <img id="blueslime3l" src="rsrc/Slime_Blue_3_l.png" alt="img" hidden>
+    <img id="blueslime4l" src="rsrc/Slime_Blue_4_l.png" alt="img" hidden>
+
+    <img id="greenslime1l" src="rsrc/Slime_Green_1_l.png" alt="img" hidden>
+    <img id="greenslime2l" src="rsrc/Slime_Green_2_l.png" alt="img" hidden>
+    <img id="greenslime3l" src="rsrc/Slime_Green_3_l.png" alt="img" hidden>
+    <img id="greenslime4l" src="rsrc/Slime_Green_4_l.png" alt="img" hidden>
+
+    <img id="pinkslime1l" src="rsrc/Slime_Pink_1_l.png" alt="img" hidden>
+    <img id="pinkslime2l" src="rsrc/Slime_Pink_2_l.png" alt="img" hidden>
+    <img id="pinkslime3l" src="rsrc/Slime_Pink_3_l.png" alt="img" hidden>
+    <img id="pinkslime4l" src="rsrc/Slime_Pink_4_l.png" alt="img" hidden>
+
+    <img id="whiteslime1l" src="rsrc/Slime_White_1_l.png" alt="img" hidden>
+    <img id="whiteslime2l" src="rsrc/Slime_White_2_l.png" alt="img" hidden>
+    <img id="whiteslime3l" src="rsrc/Slime_White_3_l.png" alt="img" hidden>
+    <img id="whiteslime4l" src="rsrc/Slime_White_4_l.png" alt="img" hidden>
+
+    <img id="yellowslime1l" src="rsrc/Slime_Yellow_1_l.png" alt="img" hidden>
+    <img id="yellowslime2l" src="rsrc/Slime_Yellow_2_l.png" alt="img" hidden>
+    <img id="yellowslime3l" src="rsrc/Slime_Yellow_3_l.png" alt="img" hidden>
+    <img id="yellowslime4l" src="rsrc/Slime_Yellow_4_l.png" alt="img" hidden>
+
+    <img id="tilemap" src="rsrc/TileMap.png" alt="map" hidden>
+    <img id="backpic" src="rsrc/bg.png" alt="img" hidden>
+
+<script type="text/javascript">
+  myName.value = "";
+  var nametimeout;
+  function changeName(){
+    if (nametimeout)
+      clearTimeout(nametimeout)
+    nametimeout = setTimeout(pingAll, 800);
+  }
+
+  function ping(ip, statusSpan, connectButton){
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4){
+        clearTimeout(this.waittimeoutid)
+        if (this.status == 200) {
+          statusSpan.innerText = this.responseText;
+          buttonEnabled = myName.value.length > 0 && this.responseText != 'Full'
+          connectButton.disabled = !buttonEnabled;
+        } else {
+          console.log(this.responseText)
+          statusSpan.innerText = "Failed to Connect";
+        }
+      }
+    };
+    xhttp.open("GET", "http://" + ip + "?t=" + Math.random(), true);
+    xhttp.send();
+    statusSpan.innerText = "Testing Connection..."
+    xhttp.waittimeoutid = setTimeout(() => { statusSpan.innerText = "Waiting..." }, 200);
+  }
+
+  function pingAll(){
+    ping("taylor:8192/players", taylorstatus, connectTaylor)
+    ping("muller:8192/players", mullerstatus, connectMuller)
+    ping("saint:8192/players", saintstatus, connectSaint)
+  }
+  pingAll();
+
+  function connect(ip){
+      let newName = encodeHTML(myName.value)
+      window.location = "http://cse.taylor.edu/~eyu/GameJam/GameJam-S2018/game.html?s=" + ip + '&n=' + newName;
+  }
+  function connectCustom() {
+    let s = ipaddress.value;
+    connect(s)
+  }
+  function encodeHTML(s) {
+      return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+  }
+
+  ping("taylor:8192/highscore", highscore)
+  </script>
+</body>
+</html>

@@ -10,7 +10,7 @@ const TSIZE = 48
 const MW = 1536;
 const MH = 1536;
 const FRICTION = .85;
-const GRAVITY = 1;
+const GRAVITY = .3;
 
 
 const CONNECT = 1;
@@ -18,6 +18,8 @@ const READY = 2;
 const PLAYERLIST = 3;
 const PARTICLE = 4;
 const UPDATE = 5;
+const SHOOT = 6;
+const GAMEOVER = 7;
 
 console.log("Running server on port 8191.")
 
@@ -30,6 +32,9 @@ bullets = []; //12
 slimes = []
 players = []
 
+maxhealth = 192;
+teamhealth = 192;
+teamscore = 0;
 slimeTimer = 1000;
 trapTimer = 200;
 difficulty = 1;
@@ -44,7 +49,7 @@ wss.on('connection', function connection(ws) {
     ws.on('message', function incoming(data) {
         data = JSON.parse(data);
         if (data.type == CONNECT) {
-            if (playing == true) {
+            if (playing == true || wss.clients.size > 6) {
                 ws.terminate()
                 return
             }
@@ -53,7 +58,6 @@ wss.on('connection', function connection(ws) {
             ws.name = data.obj.name;
             ws.drawid = data.obj.drawid
             ws.ready = false;
-            ws.score = 0;
             console.log("Connection:  " + ws._socket.remoteAddress + " " + ws.name);
             brodacastPlayerReadyList()
 
@@ -71,11 +75,22 @@ wss.on('connection', function connection(ws) {
             }
         } else if (data.type == UPDATE) {
             ws.p = data.obj;
+        } else if (data.type == SHOOT) {
+            // let bangle = pi/2;
+            // if (data.obj.dir){
+            //     bangle = bangle + pi;
+            // }
+            bullets.push({
+                x: data.obj.x,
+                y: data.obj.y,
+                color: data.obj.color,
+                theta: data.obj.dir
+            })
         }
     });
 
     ws.on('close', function closing(data) {
-        console.log('Disconnect: ' + ws.name + '  Score: ' + ws.score);
+        console.log('Disconnect: ' + ws.name);
     });
 });
 function createColorDict() {
@@ -84,7 +99,7 @@ function createColorDict() {
     wss.clients.forEach(function each(client) {
         if (client.readyState === WebSocket.OPEN) {
             colordict[client.drawid] = COLORS[count];
-            count ++;
+            count++;
         }
     });
     return colordict
@@ -104,7 +119,6 @@ function brodacastPlayerReadyList() {
       playerlist.push({name:client.name, ready:client.ready})
     });
     sendToAll(PLAYERLIST, {playerlist: playerlist})
-
 }
 
 function newPacket(type, obj){
@@ -140,13 +154,13 @@ function tick() {
         trapTimer--;
         if (trapTimer <= 0){
             createNewTrap()
-            trapTimer = 10 + Math.floor((500/difficulty) * Math.random())
+            trapTimer = 10 + Math.floor((200/difficulty) * Math.random())
         }
         slimeTimer --;
         if (slimeTimer <= 0) {
-            difficulty += .0001
+            difficulty += .005
             spawnNewSlime()
-            slimeTimer = 300 + Math.floor((200/difficulty) * Math.random())
+            slimeTimer = 50/difficulty + Math.floor((100/difficulty) * Math.random())
         }
 
         for (let i in traps) {
@@ -155,11 +169,13 @@ function tick() {
             for (p of players) {
                 let dx = Math.abs(p.x - tr.x);
                 let dy = Math.abs(p.y - tr.y);
-                if (dx < 24 + 12 && dy < 48 + 12) {
-                    console.log('trap!')
+                if (dx < 24 + 12 && dy < 48 + 12) { //trap collision
                     spawnBullets(tr.x, tr.y, p.color)
                     tr.t -= 2000;
-                    console.log('trap2!')
+                    if (teamhealth < 192){
+                        teamhealth += 1
+                    }
+                    teamscore += 5;
                 }
             }
 
@@ -168,16 +184,19 @@ function tick() {
             }
         }
         for (let i in bullets) {
-            let bulletv = 5;
+            let bulletv = 10;
             let b = bullets[i];
             b.x += bulletv * Math.sin(b.theta)
             b.y -= bulletv * Math.cos(b.theta)
 
             for (let j in slimes) {
                 let sl = slimes[j]
-                if (circleRectCollision(b.x, b.y, 12, sl.x, sl.y, TSIZE, TSIZE)) {
+                if (b.color == sl.color && circleRectCollision(b.x, b.y, 24, sl.x, sl.y, TSIZE, TSIZE)) {
+                 //bullet collision
+                    sendToAll(PARTICLE, {x:sl.x, y:sl.y, color:b.color})
                     slimes.splice(j--, 1)
                     b.x = -600;
+                    teamscore += 9 + wss.clients.size;
                 }
             }
 
@@ -188,14 +207,32 @@ function tick() {
 
         for (let i in slimes) {
             let sl = slimes[i]
-            sl.update();
+            if (sl && sl.update){
+                sl.update();
+                for (p of players) {
+                    let dx = Math.abs(p.x - sl.x);
+                    let dy = Math.abs(p.y - sl.y);
+                    if (dx < 24 + 12 && dy < 48 + 12) { //slime collision
+                        teamhealth -= 12
+                        sendToAll(PARTICLE, {x:sl.x, y:sl.y, color:sl.color})
+                        if (teamhealth <= 0) {
+                            reset();
+                            i += 5000;
+                            break;
+                        }
+                        slimes.splice(i--, 1)
+                    }
+                }
+            }
         }
 
         sendToAll(UPDATE, {
             players: players,
             traps: traps,
             bullets: bullets,
-            slimes: slimes
+            slimes: slimes,
+            teamhealth: teamhealth,
+            teamscore: teamscore
         });
         if (wss.clients.size <= 0) {
             reset()
@@ -206,7 +243,6 @@ function spawnNewSlime() {
     let r = 1 + Math.floor(Math.random() * 30);
     let c = 1 + Math.floor(Math.random() * 30);
     while (map[r][c] != 255){
-        console.log("a")
         r = 1 + Math.floor(Math.random() * 30);
         c = 1 + Math.floor(Math.random() * 30);
     }
@@ -249,6 +285,22 @@ function reset() {
     traps = [];
     slimes = [];
     shuffleColors();
+    teamhealth = 192;
+    difficulty = 1;
+    var contents = fs.readFileSync('highscore', 'utf8');
+    let highscore = Math.round(contents.trim());
+    let beatScore = false;
+    if (teamscore > highscore){
+        beatScore = true;
+        fs.writeFile("highscore", teamscore, function(err) {
+            if(err) {
+                return console.log(err);
+            }
+            console.log("new high score recorded");
+        });
+    }
+    sendToAll(GAMEOVER, {won: beatScore})
+    teamscore = 0;
 }
 
 function newSlime(x, y, color, playerc) {
@@ -259,14 +311,14 @@ function newSlime(x, y, color, playerc) {
         vx: 0,
         vy: 0,
         playerc: playerc,
-        maxv: .5 + Math.random() * 1,
+        maxv: .5 + Math.random() * difficulty,
         ax: .1,
-        jumps: 1,
         midair: true,
         animationCount: 0,
         frame: 0,
         facingR: false,
         downtimer: 500,
+        uptimer: Math.floor(200 * Math.random()),
         draw: function(ctx) {
             if (this.vx < 0){
                 this.facingR = false;
@@ -313,8 +365,10 @@ function newSlime(x, y, color, playerc) {
                 if (this.vx > this.maxv)
                     this.vx = this.maxv;
             }
-            if (Math.random() < .01) { //up
-                this.vy = -18;
+            this.uptimer--;
+            if (this.uptimer <= 0) { //up
+                this.vy = -9;
+                this.uptimer = Math.floor(400*Math.random())
             }
             this.x += this.vx;
             this.y += this.vy;
@@ -347,7 +401,6 @@ function newSlime(x, y, color, playerc) {
                         this.vy = 0;
                         this.y = myD*TSIZE - TSIZE/2
                         this.midair = false;
-                        this.jumps = 1;
                     }
                 }
 
@@ -403,7 +456,6 @@ function newSlime(x, y, color, playerc) {
             else { //hit floor
                 this.vy = 0;
                 this.y = MH - TSIZE/2 - TSIZE
-                this.jumps = 2;
                 this.midair = false;
             }
 
@@ -434,7 +486,7 @@ function write() {
       if(err) {
           return console.log(err);
       }
-      console.log("write!");
+      //console.log("write!");
   });
 }
 function shuffle(array) {

@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
+	<meta charset="UTF-8">
+	<title>Slimeageddon</title>
+  <style>
+
+
+  .center{
+    display: table;
+    margin: 0 auto;
+  }
+  #players_ul{
+      display: table;
+      margin: 100px auto;
+  }
+  #readybtn{
+      margin: 0 auto;
+      display: table;
+      margin-top: 10px;
+  }
+  #gamediv{
+      margin: 0 auto;
+      display: table;
+  }
+  </style>
+</head>
+<body id="body">
+<div id='connectdiv'>
+  <div id='connectmsg'></div>
+  <ul id=players_ul>
+  </ul>
+  <div id='buttonsdiv' hidden>
+      <button type="button" id="readybtn" onclick="sendReady(true)">Ready!</button>
+      <button type="button" id="readybtn" onclick="sendReady(false)">Hold On...</button>
+  </div>
+</div>
+<div id='gamediv' hidden>
+<div class="">
+
+  <canvas id="canvas" width="960" height="720"></canvas>
+</div>
+<div class="">
+
+  <canvas hidden id="renderer" width="960" height="720"></canvas>
+</div>
+
+</div>
+
+
+<img id="tilemap" src="rsrc/TileMap.png" alt="map" hidden>
+<img id="cloudimg" src="rsrc/cloud.png" alt="img" hidden>
+<img id="blockimg" src="rsrc/block.png" alt="img" hidden>
+
+<img id="bluewalk0" src="rsrc/player_blue_idle.png" alt="img" hidden>
+<img id="bluewalk1" src="rsrc/player_blue_walk_1.png" alt="img" hidden>
+<img id="bluewalk2" src="rsrc/player_blue_walk_2.png" alt="img" hidden>
+<img id="bluewalk3" src="rsrc/player_blue_idle_l.png" alt="img" hidden>
+<img id="bluewalk4" src="rsrc/player_blue_walk_1_l.png" alt="img" hidden>
+<img id="bluewalk5" src="rsrc/player_blue_walk_2_l.png" alt="img" hidden>
+
+<img id="greenwalk0" src="rsrc/player_green_idle.png" alt="img" hidden>
+<img id="greenwalk1" src="rsrc/player_green_walk_1.png" alt="img" hidden>
+<img id="greenwalk2" src="rsrc/player_green_walk_2.png" alt="img" hidden>
+<img id="greenwalk3" src="rsrc/player_green_idle_l.png" alt="img" hidden>
+<img id="greenwalk4" src="rsrc/player_green_walk_1_l.png" alt="img" hidden>
+<img id="greenwalk5" src="rsrc/player_green_walk_2_l.png" alt="img" hidden>
+
+<img id="pinkwalk0" src="rsrc/player_pink_idle.png" alt="img" hidden>
+<img id="pinkwalk1" src="rsrc/player_pink_walk_1.png" alt="img" hidden>
+<img id="pinkwalk2" src="rsrc/player_pink_walk_2.png" alt="img" hidden>
+<img id="pinkwalk3" src="rsrc/player_pink_idle_l.png" alt="img" hidden>
+<img id="pinkwalk4" src="rsrc/player_pink_walk_1_l.png" alt="img" hidden>
+<img id="pinkwalk5" src="rsrc/player_pink_walk_2_l.png" alt="img" hidden>
+
+<img id="redwalk0" src="rsrc/player_red_idle.png" alt="img" hidden>
+<img id="redwalk1" src="rsrc/player_red_walk_1.png" alt="img" hidden>
+<img id="redwalk2" src="rsrc/player_red_walk_2.png" alt="img" hidden>
+<img id="redwalk3" src="rsrc/player_red_idle_l.png" alt="img" hidden>
+<img id="redwalk4" src="rsrc/player_red_walk_1_l.png" alt="img" hidden>
+<img id="redwalk5" src="rsrc/player_red_walk_2_l.png" alt="img" hidden>
+
+<img id="whitewalk0" src="rsrc/player_white_idle.png" alt="img" hidden>
+<img id="whitewalk1" src="rsrc/player_white_walk_1.png" alt="img" hidden>
+<img id="whitewalk2" src="rsrc/player_white_walk_2.png" alt="img" hidden>
+<img id="whitewalk3" src="rsrc/player_white_idle_l.png" alt="img" hidden>
+<img id="whitewalk4" src="rsrc/player_white_walk_1_l.png" alt="img" hidden>
+<img id="whitewalk5" src="rsrc/player_white_walk_2_l.png" alt="img" hidden>
+
+<img id="yellowwalk0" src="rsrc/player_yellow_idle.png" alt="img" hidden>
+<img id="yellowwalk1" src="rsrc/player_yellow_walk_1.png" alt="img" hidden>
+<img id="yellowwalk2" src="rsrc/player_yellow_walk_2.png" alt="img" hidden>
+<img id="yellowwalk3" src="rsrc/player_yellow_idle_l.png" alt="img" hidden>
+<img id="yellowwalk4" src="rsrc/player_yellow_walk_1_l.png" alt="img" hidden>
+<img id="yellowwalk5" src="rsrc/player_yellow_walk_2_l.png" alt="img" hidden>
+
+<img id="redslime1" src="rsrc/Slime_Red_1.png" alt="img" hidden>
+<img id="redslime2" src="rsrc/Slime_Red_2.png" alt="img" hidden>
+<img id="redslime3" src="rsrc/Slime_Red_3.png" alt="img" hidden>
+<img id="redslime4" src="rsrc/Slime_Red_4.png" alt="img" hidden>
+
+<img id="blueslime1" src="rsrc/Slime_Blue_1.png" alt="img" hidden>
+<img id="blueslime2" src="rsrc/Slime_Blue_2.png" alt="img" hidden>
+<img id="blueslime3" src="rsrc/Slime_Blue_3.png" alt="img" hidden>
+<img id="blueslime4" src="rsrc/Slime_Blue_4.png" alt="img" hidden>
+
+<img id="greenslime1" src="rsrc/Slime_Green_1.png" alt="img" hidden>
+<img id="greenslime2" src="rsrc/Slime_Green_2.png" alt="img" hidden>
+<img id="greenslime3" src="rsrc/Slime_Green_3.png" alt="img" hidden>
+<img id="greenslime4" src="rsrc/Slime_Green_4.png" alt="img" hidden>
+
+<img id="pinkslime1" src="rsrc/Slime_Pink_1.png" alt="img" hidden>
+<img id="pinkslime2" src="rsrc/Slime_Pink_2.png" alt="img" hidden>
+<img id="pinkslime3" src="rsrc/Slime_Pink_3.png" alt="img" hidden>
+<img id="pinkslime4" src="rsrc/Slime_Pink_4.png" alt="img" hidden>
+
+<img id="whiteslime1" src="rsrc/Slime_White_1.png" alt="img" hidden>
+<img id="whiteslime2" src="rsrc/Slime_White_2.png" alt="img" hidden>
+<img id="whiteslime3" src="rsrc/Slime_White_3.png" alt="img" hidden>
+<img id="whiteslime4" src="rsrc/Slime_White_4.png" alt="img" hidden>
+
+<img id="yellowslime1" src="rsrc/Slime_Yellow_1.png" alt="img" hidden>
+<img id="yellowslime2" src="rsrc/Slime_Yellow_2.png" alt="img" hidden>
+<img id="yellowslime3" src="rsrc/Slime_Yellow_3.png" alt="img" hidden>
+<img id="yellowslime4" src="rsrc/Slime_Yellow_4.png" alt="img" hidden>
+
+<img id="redslime1l" src="rsrc/Slime_Red_1_l.png" alt="img" hidden>
+<img id="redslime2l" src="rsrc/Slime_Red_2_l.png" alt="img" hidden>
+<img id="redslime3l" src="rsrc/Slime_Red_3_l.png" alt="img" hidden>
+<img id="redslime4l" src="rsrc/Slime_Red_4_l.png" alt="img" hidden>
+
+<img id="blueslime1l" src="rsrc/Slime_Blue_1_l.png" alt="img" hidden>
+<img id="blueslime2l" src="rsrc/Slime_Blue_2_l.png" alt="img" hidden>
+<img id="blueslime3l" src="rsrc/Slime_Blue_3_l.png" alt="img" hidden>
+<img id="blueslime4l" src="rsrc/Slime_Blue_4_l.png" alt="img" hidden>
+
+<img id="greenslime1l" src="rsrc/Slime_Green_1_l.png" alt="img" hidden>
+<img id="greenslime2l" src="rsrc/Slime_Green_2_l.png" alt="img" hidden>
+<img id="greenslime3l" src="rsrc/Slime_Green_3_l.png" alt="img" hidden>
+<img id="greenslime4l" src="rsrc/Slime_Green_4_l.png" alt="img" hidden>
+
+<img id="pinkslime1l" src="rsrc/Slime_Pink_1_l.png" alt="img" hidden>
+<img id="pinkslime2l" src="rsrc/Slime_Pink_2_l.png" alt="img" hidden>
+<img id="pinkslime3l" src="rsrc/Slime_Pink_3_l.png" alt="img" hidden>
+<img id="pinkslime4l" src="rsrc/Slime_Pink_4_l.png" alt="img" hidden>
+
+<img id="whiteslime1l" src="rsrc/Slime_White_1_l.png" alt="img" hidden>
+<img id="whiteslime2l" src="rsrc/Slime_White_2_l.png" alt="img" hidden>
+<img id="whiteslime3l" src="rsrc/Slime_White_3_l.png" alt="img" hidden>
+<img id="whiteslime4l" src="rsrc/Slime_White_4_l.png" alt="img" hidden>
+
+<img id="yellowslime1l" src="rsrc/Slime_Yellow_1_l.png" alt="img" hidden>
+<img id="yellowslime2l" src="rsrc/Slime_Yellow_2_l.png" alt="img" hidden>
+<img id="yellowslime3l" src="rsrc/Slime_Yellow_3_l.png" alt="img" hidden>
+<img id="yellowslime4l" src="rsrc/Slime_Yellow_4_l.png" alt="img" hidden>
+
+<img id="backpic" src="rsrc/bg.png" alt="img" hidden>
+
+</body>
+
+<script src="particles.js"></script>
+<script>
+
+var backmusic = new Audio("rsrc/Migimin.mp3")
+var hurt_sound = new Audio("rsrc/hurt_sound.mp3")
+
+backmusic.loop = true;
+
+const pi = Math.PI;
+const tau = 2 * Math.PI;
+const CONNECT = 1;
+const READY = 2;
+const PLAYERLIST = 3;
+const PARTICLE = 4;
+const UPDATE = 5;
+const SHOOT = 6;
+const GAMEOVER = 7;
+
+const VW = canvas.width;
+const VH = canvas.height;
+const MW = 1536;
+const MH = 1536;
+const TSIZE = 48;
+const PW = TSIZE;
+const PH = 2*TSIZE;
+const FRICTION = .85;
+const GRAVITY = 1;
+//red,
+const COLORS = ["", "", "", "", "", ""]
+
+var cooling = 70;
+var cooldown = 70;
+var teamhealth = 192;
+var teamscore = 0;
+var gameover = false;
+var gamewon = false;
+var gameoverfade = 0;
+
+var ctx = canvas.getContext("2d");
+var myID = Math.floor(Math.random() * 2097152)
+
+var myServer = getParameterByName('s')
+var myName = getParameterByName('n')
+var lastTime = Date.now()
+var keys = {};
+var socket;
+
+var player = {}
+var players = []
+var traps = []
+var bullets = []
+var slimes = []
+
+var walk_sprites = {
+    "#F83800": [redwalk0, redwalk1, redwalk2, redwalk3, redwalk4, redwalk5],
+    "#F8B800": [yellowwalk0, yellowwalk1, yellowwalk2, yellowwalk3, yellowwalk4, yellowwalk5],
+    "#58D854": [greenwalk0, greenwalk1, greenwalk2, greenwalk3, greenwalk4, greenwalk5],
+    "#6844FC": [bluewalk0, bluewalk1, bluewalk2, bluewalk3, bluewalk4, bluewalk5],
+    "#D800CC": [pinkwalk0, pinkwalk1, pinkwalk2, pinkwalk3, pinkwalk4, pinkwalk5],
+    "#BCBCBC": [whitewalk0, whitewalk1, whitewalk2, whitewalk3, whitewalk4, whitewalk5],
+}
+
+var slime_sprites = {
+    "#F83800": [redslime1, redslime2, redslime3, redslime4, redslime1l, redslime2l, redslime3l, redslime4l],
+    "#F8B800": [yellowslime1, yellowslime2, yellowslime3, yellowslime4, yellowslime1l, yellowslime2l, yellowslime3l, yellowslime4l],
+    "#58D854": [greenslime1, greenslime2, greenslime3, greenslime4, greenslime1l, greenslime2l, greenslime3l, greenslime4l],
+    "#6844FC": [blueslime1, blueslime2, blueslime3, blueslime4, blueslime1l, blueslime2l, blueslime3l, blueslime4l],
+    "#D800CC": [pinkslime1, pinkslime2, pinkslime3, pinkslime4, pinkslime1l, pinkslime2l, pinkslime3l, pinkslime4l],
+    "#BCBCBC": [whiteslime1, whiteslime2, whiteslime3, whiteslime4, whiteslime1l, whiteslime2l, whiteslime3l, whiteslime4l],
+}
+
+var viewport = {x: 0, y:0}
+var map;
+
+initPage()
+
+function initPage(){
+    map = loadMap(tilemap, 32, 32)
+    console.log(myServer)
+    console.log(myName)
+    if (myName.length > 25) {
+        myName = myName[0];
+    }
+    connect()
+}
+
+function getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+    results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+
+function newPacket(type, obj){
+	return JSON.stringify({'type': type, 'obj': obj});
+}
+
+function connect() {
+	connectmsg.innerText = "Connecting...";
+	var url = 'ws://' + myServer + ':8191';
+	socket = new WebSocket(url);
+	socket.onopen = function () {
+		connectmsg.hidden = true;
+		gamediv.hidden = false;
+		document.getElementById("body").style.backgroundColor = "#888";
+		socket.send(newPacket(CONNECT, {name: myName, drawid: myID}));
+        buttonsdiv.hidden = false;
+	}
+	socket.onclose = e => {
+    console.log('close')
+		console.log(e);
+        connectdiv.hidden = false;
+		connectmsg.hidden = false;
+        gamediv.hidden = true;
+        players_ul.hidden = true;
+        players_ul.style.display = 'none';
+        gamediv.style.display = 'none';
+        document.getElementById("body").style.backgroundColor = "#FFF";
+		connectmsg.innerText = "Connection Closed. You can try reloading, but the server is probably down.";
+        buttonsdiv.hidden = true;
+	}
+	socket.onmessage = e => { //Receiving packets
+		let temp = JSON.parse(e.data);
+		//console.log(temp)
+        if (temp.type == PLAYERLIST) { //used before game starts
+            replacePlayerList(temp.obj.playerlist);
+		} else if (temp.type == READY) {
+            console.log("starting")
+            console.log(temp)
+            backmusic.play();
+            initGame();
+            player.color = temp.obj["colorsdict"][myID];
+            console.log("asdf " + temp.obj.colorsdict)
+		} else if (temp.type == PARTICLE) {
+            Particles.explode(temp.obj.x-viewport.x, temp.obj.y-viewport.y, temp.obj.color, 20, 6)
+		} else if (temp.type == UPDATE) {
+            if (temp.obj.teamhealth < teamhealth){
+                hurt_sound.play();
+            }
+            if (temp.obj.players)
+            players = temp.obj.players;
+            traps = temp.obj.traps;
+            bullets = temp.obj.bullets;
+            slimes = temp.obj.slimes;
+            teamhealth = temp.obj.teamhealth;
+            teamscore = temp.obj.teamscore;
+        }  else if (temp.type == GAMEOVER) {
+            gameover = true;
+            if (temp.obj.won === true){
+                gamewon = true;
+            }
+            setTimeout(() => location.reload(), 4000);
+        }
+	}
+}
+
+function initGame() {
+    connectdiv.hidden = true;
+    gamediv.hidden = false;
+    initPlayer();
+    gameInt = setInterval(tick, 1);
+}
+
+function initPlayer(mycolor) {
+    player = {
+    	x: 768,
+    	y: 800,
+    	color: '#6844FC',
+    	vx: 0,
+    	vy: 0,
+    	maxv: 9,
+    	ax: 2,
+    	jumps: 1,
+    	midair: true,
+        animationCount: 0,
+        frame: 0,
+        facingL: false,
+    	draw: function(ctx) {
+            if (this.vx > 0){
+                this.facingL = false;
+            } else if (this.vx < 0){
+                this.facingL = true;
+            }
+
+            if (this.midair){
+                this.frame = 2;
+                this.animationCount = 0;
+            } else {
+                if (Math.abs(this.vx) <= .3){
+                    this.frame = 0;
+                    this.animationCount = 0;
+                } else {
+                    if (this.animationCount % 3 == 0)
+                        Particles.explode(this.x-PW/2- viewport.x + PW * Math.random(), this.y + PH/2- viewport.y, this.color, 10, 2)
+                    this.frame = Math.floor(this.animationCount/30);
+                    this.animationCount = (this.animationCount + 1) % 90;
+                }
+            }
+            if (this.facingL) this.frame += 3;
+            this.img = walk_sprites[this.color][this.frame];
+    		ctx.fillStyle = this.color;
+            drawPlayer(player)
+            //ctx.drawImage(this.img, this.x-PW/2- viewport.x, this.y - PH/2- viewport.y)
+
+    		//drawRect(this.x - viewport.x, this.y - viewport.y, PW, PH, "red", "black");
+    	},
+    	update: function() {
+    		this.midair = true;
+
+    		if (keys[37] || keys[65]) { //left
+    			this.vx -= this.ax;
+    			if (this.vx < -this.maxv)
+    				this.vx = -this.maxv;
+    		}
+    		if (keys[39] || keys[68]) { //right
+    			this.vx += this.ax;
+    			if (this.vx > this.maxv)
+    				this.vx = this.maxv;
+    		}
+    		if (this.jumps && (keys[38] || keys[87]) && (!lastKeys[38] && !lastKeys[87])) { //up
+    			this.vy = -18;
+    			this.jumps--;
+    		}
+            this.x += this.vx;
+            this.y += this.vy;
+
+            let myR = this.x + PW/2;
+            let myL = this.x - PW/2;
+            let myU = this.y - PH/2;
+            let myD = this.y + PH/2;
+            let prevR = myR - this.vx -1; //This -1 is kinda important :(
+            let prevL = myL - this.vx;
+            let prevU = myU - this.vy;
+            let prevD = myD - this.vy;
+
+            myR = Math.floor(myR/TSIZE);
+            myL = Math.floor(myL/TSIZE);
+            myU = Math.floor(myU/TSIZE);
+            myD = Math.floor(myD/TSIZE);
+            prevR = Math.floor(prevR/TSIZE);
+            prevL = Math.floor(prevL/TSIZE);
+            prevU = Math.floor(prevU/TSIZE);
+            prevD = Math.floor(prevD/TSIZE);
+
+            let leftest = Math.min(myL, prevL);
+            let rightest = Math.max(myR, prevR);
+
+
+            if (myD >= prevD && this.vy > 0) {
+                for (let i = leftest; i <= rightest; i++){
+                    let block = map[myD][i];
+                    if (block == 0 || ((block == 126 || block == 127) && !(keys[40] || keys[83]))) {//collide with blocks and clouds if not holding down
+                        this.vy = 0;
+                        this.y = myD*TSIZE - PH/2
+                        this.midair = false;
+                        this.jumps = 1;
+                    }
+                }
+
+            }
+            else if (myU < prevU && this.vy < 0) {
+                for (let i = leftest; i <= rightest; i++){
+                    let block = map[myU][i];
+                    if (block == 0) {//collide with blocks only
+                        this.vy = 0;
+                        this.y = myU*TSIZE + TSIZE + PH/2
+                    }
+                }
+
+            }
+
+            if (myR > prevR) {
+                let highest = Math.min(myU, prevU);
+                myD = this.y + PH/2 - 1; //Prevent sticking to floor?
+                prevD = myD - this.vy;
+                myD = Math.floor(myD/TSIZE);
+                prevD = Math.floor(prevD/TSIZE);
+                let lowest = Math.max(myD, prevD);
+                for (let i = highest; i <= lowest; i++){
+                    let block = map[i][myR];
+                    if (block == 0) {//collide with block
+                        this.vx = 0;
+                        this.x = myR*TSIZE - PW/2
+                    }
+                }
+            }
+            else if (myL < prevL) {
+                let highest = Math.min(myU, prevU);
+                myD = this.y + PH/2 - 1; //Prevent sticking to floor?
+                prevD = myD - this.vy;
+                myD = Math.floor(myD/TSIZE);
+                prevD = Math.floor(prevD/TSIZE);
+                let lowest = Math.max(myD, prevD);
+                for (let i = highest; i <= lowest; i++){
+                    let block = map[i][myL];
+                    if (block == 0) {//collide with block
+                        this.vx = 0;
+                        this.x = myL*TSIZE + TSIZE + PW/2
+                    }
+                }
+            }
+
+            if (this.y < PH/2) { // hitting ceiling
+    			this.y = PH/2;
+    			this.vy = 0;
+    		} else if (this.y < MH - PH/2 - TSIZE){ //above floor
+                this.vy += GRAVITY;
+                if(this.vy > 15) this.vy = 15;
+            }
+            else { //hit floor
+                this.vy = 0;
+                this.y = MH - PH/2 - TSIZE
+                this.jumps = 2;
+                this.midair = false;
+            }
+
+            /*
+            if (this.y > MH - PH/2) { //below floor
+            this.y = MH - PH/2;
+            this.vy = 0;
+            midair = false;
+        }
+        */
+
+            if (this.x + PW/2 > MW) {
+                this.vx = 0;
+                this.x = MW - PW/2;
+            } else if (this.x - PW/2 < 0) {
+                this.vx = 0;
+                this.x = PW/2;
+            }
+
+    		this.vx *= FRICTION;
+    		lastKeys = JSON.parse(JSON.stringify(keys)); //deep copy
+            viewport.x = Math.round(this.x - VW/2);
+            viewport.y = Math.round(this.y - PH*2 - VH/4);
+    	}
+    }
+}
+
+function drawPlayer(player) { //need color, frame, x, y,
+    ctx.drawImage(walk_sprites[player.color][player.frame],
+        player.x-PW/2- viewport.x, player.y -PH/2- viewport.y)
+}
+
+function drawSlime(slime) {
+    ctx.drawImage(slime_sprites[slime.color][slime.frame],
+        slime.x-TSIZE/2 - viewport.x, slime.y-TSIZE/2 - viewport.y)
+}
+
+function randInt(max){
+    //exclusive max
+    return Math.floor(Math.random() * max)
+}
+
+function loadMap(img, width, height) {
+    let map = []
+    renderer.width = width;
+    renderer.height = height;
+    let rendCtx = renderer.getContext('2d')
+    rendCtx.drawImage(tilemap, 0, 0)
+    let imageData = rendCtx.getImageData(0, 0, width, height);
+    let data = imageData.data;
+    let len = data.length;
+    console.log(data)
+    for (let row = 0; row < height; row++) {
+        map.push([])
+        for (let i = 0; i < width; i++) {
+            map[row].push([])
+            map[row][i] = data[4*i+0 + (row*128)]
+        }
+    }
+    console.log(map)
+    return map;
+}
+
+function sendReady(status) {
+    socket.send(newPacket(READY, status))
+}
+
+function replacePlayerList(playerlist){
+    while (players_ul.hasChildNodes()) {
+        players_ul.removeChild(players_ul.lastChild);
+    }
+    for (let p of playerlist) {
+        let readyText = p.ready ? "" : ": Waiting..."
+        let node = document.createTextNode(p.name + readyText);
+        let lsit = document.createElement("li");
+        lsit.appendChild(node);
+        lsit.style.color = p.ready ? "green" : "red"
+        lsit.style.padding = '10px';
+        players_ul.appendChild(lsit);
+    }
+
+}
+
+function tick() {
+    if (Date.now() - lastTime > 10) {
+        lastTime = Date.now();
+        update();
+    }
+    Particles.update();
+    draw();
+}
+
+function update() {
+    player.update();
+    if (cooling > 0) cooling--;
+    if (keys[32] && cooling <= 0){
+        cooling = cooldown;
+        socket.send(newPacket(SHOOT, {x: player.x, y: player.y, color:player.color, dir: player.facingL}))
+    }
+    socket.send(newPacket(UPDATE, {x: player.x, y: player.y, color:player.color, frame:player.frame, drawid: myID}));
+}
+
+function draw() {
+    drawRect(VW/2, VH/2, VW, VH, '#444') //static background
+    ctx.drawImage(backpic, -450 -viewport.x, -450 -viewport.y)
+    for (let t of traps) {
+        let templw = ctx.lineWidth
+        ctx.lineWidth = 4;
+        drawRect(t.x- viewport.x, t.y - viewport.y, 24, 24, 'white', 'black')
+        ctx.lineWidth = templw
+    }
+    for (let i = 0; i < map.length; i++) {
+        for (let j = 0; j < map[0].length; j++) {
+            drawTile(i, j, map[i][j])
+        }
+    }
+    drawRect(MW/2 - viewport.x, MH/2 - viewport.y, MW, MH, false, "black") //bounding box
+    for(let sl of slimes){
+        drawSlime(sl)
+    }
+    for(let p of players){
+        if (p.drawid != myID){
+            drawPlayer(p)
+        }
+    }
+
+
+    player.draw(ctx)
+
+    for (let b of bullets){
+        drawTear(b.x-viewport.x, b.y-viewport.y, 12, b.color, b.theta)
+    }
+
+    Particles.draw(ctx)
+
+    ctx.font = "24px 'Press Start 2P'";
+    ctx.fillStyle = "black"
+    ctx.textAlign = "start"
+    if (cooling != 0)
+        ctx.fillText(cooling+"/"+cooldown, 0, 24)
+    else
+        ctx.fillText("Shoot!", 0, 24)
+    ctx.textAlign = "center"
+    ctx.fillText(teamscore, 480, 24)
+
+    ctx.fillStyle = "black"
+    ctx.fillRect(960-192, 6, 192, 36);
+    ctx.strokeStyle = "black"
+    let templw = ctx.lineWidth
+    ctx.lineWidth = 12;
+    ctx.strokeRect(960-192, 6, 192, 36);
+    ctx.lineWidth = templw
+    ctx.fillStyle = "red"
+    if (!gameover)
+        ctx.fillRect(960-teamhealth, 6, 192, 36);
+    if (gameover) drawEndGameScreen();
+}
+
+function drawTear(x, y, r, color, angle) {
+    ctx.translate(x, y);
+    ctx.rotate(angle);
+    ctx.beginPath();
+    ctx.moveTo(0, 0 + 2*r);
+    ctx.arc(0, 0, r, pi - pi/4, pi/4);
+    ctx.lineTo(0, 0 + 2*r);
+    ctx.strokeStyle = "black";
+    ctx.stroke();
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.resetTransform();
+}
+
+function drawRect(x, y, w, h, fill, stroke, angle) {
+    ctx.translate(x, y);
+    ctx.rotate(angle);
+    ctx.beginPath();
+    if (fill) {
+        ctx.fillStyle = fill;
+        ctx.fillRect(-w/2, -h/2, w, h);
+    }
+    if (stroke)
+    {
+        ctx.strokeStyle = stroke;
+        ctx.strokeRect(-w/2, -h/2, w, h);
+    }
+    ctx.resetTransform();
+}
+
+function drawTile(r, c, value) {
+    let tiley = r * TSIZE;
+    let tilex = c * TSIZE;
+    if (value == 0){
+        ctx.drawImage(blockimg, tilex-viewport.x, tiley-viewport.y)
+    } else if (value == 126 || value == 127) {
+        ctx.drawImage(cloudimg, tilex-viewport.x, tiley-viewport.y)
+    }
+    else {
+
+    }
+}
+function drawEndGameScreen(){
+	ctx.beginPath();
+	ctx.globalAlpha = gameoverfade;
+    ctx.textAlign="center";
+	ctx.font = "72px 'Press Start 2P'";
+	ctx.fillStyle = "black";
+	ctx.fillText("Game Over", 480, 400);
+	ctx.font = "36px 'Press Start 2P'";
+    if (gamewon == true)
+        ctx.fillText("NEW HIGH SCORE!", 480, 460);
+	ctx.fillText("Restarting...", 480, 540);
+	ctx.globalAlpha = 1;
+	if (gameoverfade < 1) {
+		gameoverfade += .005
+	}
+}
+
+
+onkeydown = e => {
+	let k = e.keyCode;
+	keys[k] = true;
+}
+
+onkeyup = e => {
+	let k = e.keyCode;
+	keys[k] = false;
+}
+
+</script>
